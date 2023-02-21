@@ -2,5 +2,3 @@
 
 This game – just another tower defense game, inspired by games **"Mindustry"** and **"infinitode 2"**.
 And I wrote it in python!
-
-
