@@ -1,4 +1,4 @@
 ![ ](https://i.ibb.co/JBGg6Mx/splahh.png)
 
-Эта игра – просто еще одна игра в жанре защита башни, вдохновленная играми **"Mindustry"** и **"infinitode 2"**. Её я делал на телефоне в приложении Max 2D.
+This game – just another tower defense game, inspired by games **"Mindustry"** and **"infinitode 2"**. And I wrote it in python!.
 
