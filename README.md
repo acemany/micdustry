@@ -1,7 +1,7 @@
 
 ![ ](https://i.ibb.co/JBGg6Mx/splahh.png)
 # Mindustry Implementation in Python
-This game – just another tower defence game, inspired by games**"Mindustry"** and **"infinitode^2^"**.
+This game – just another tower defence game, inspired by games __Mindustry__ and __infinitode 2__.
 
 ## Running
 * main: $python main.py
