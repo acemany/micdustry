@@ -1,7 +1,7 @@
 
 ![ ](https://i.ibb.co/JBGg6Mx/splahh.png)
 # Mindustry Implementation in Python
-This game – just another tower defence game, inspired by games __Mindustry__ and __infinitode 2__.
+This game – just another tower defence game inspired the **"Mindustry"** and **"infinitode^2^"** games.
 
 ## Running
 * main: $python main.py
@@ -12,10 +12,13 @@ This game – just another tower defence game, inspired by games __Mindustry__ a
 * Boost: Shift
 * Shoot: Left Mouse
 * Exit: Esc
+* Select build mode:0-3
+* Load map: K
+* Save map: L
 
 ## Current state:
 * Tested only on windows, maybe not work on another OS.
-* Version: 0.1.0
+* Version: 0.2.0
 
 ## Dependencies
 * pygame

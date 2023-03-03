@@ -2,11 +2,26 @@ from pygame import time,font,init,event,key,mouse,display,quit
 from pygame.constants import (KEYDOWN,QUIT,
     K_ESCAPE,
     K_0,K_1,K_2,K_3,K_4,K_5,K_6,K_7,K_8,K_9,
-    K_s,K_l,K_j)
+    K_l,K_k)
 from sprites import Block,TILE_SIZE
 from classes.entitys import Player
+from maps import borlay
 from json import load as jload
-from maps.borlay import TXTMAP
+from typing import List
+
+def mapToTxt(map:List[List[object]]):
+    txt=""
+    for tiles in map:
+        for tile in tiles:
+            txt+=f"{tile.block_id},"
+        txt+="\n"
+    txt+="j"
+    return txt.replace(",\n","\n").replace("\nj","")
+def txtToMap(func,txt:str):
+    txt=txt.replace("\n","|")
+    return [[func(char,(x,y))
+    for x,char in enumerate(row.split(","))]
+    for y,row  in enumerate(txt.split("|"))]
 
 #INIT
 init()
@@ -19,27 +34,12 @@ with open("settings.json")as file:
     jsonData=jload(file)
     FPS_LIMIT=jsonData["display"]["fps"]
 GameFont=font.SysFont('Comis Sans',24,bold=True)
-TILE_LIST=["env-error","sand-floor1","grass1","empty"]
-bottom_map=[[
-    Block(char,(x,y))
-    for x,char in enumerate(row)]
-    for y,row  in enumerate(TXTMAP)]
+TILE_LIST=["env-error","sand","gr","empty"]
+with open("maps/map_test.msav")as file:
+    bottom_map=txtToMap(Block,file.read())
 
 while(True):
     keys=key.get_pressed()
-    if event.get(KEYDOWN):
-        if keys[K_j]and keys[K_s]:
-            with open("maps/map_test.msav","w")as file:
-
-                for tiles in bottom_map:
-                    for tile  in tiles:
-                        (f"""{tile.block_id},|""")
-                file.write()
-        if keys[K_j]and keys[K_l]:
-            with open("maps/map_test.msav","r")as file:
-                bottom_map=[[Block(char,(x,y))
-                for x,char in enumerate(row.split(","))]
-                for y,row  in enumerate(file.read().split("|"))]
     if keys[K_ESCAPE]or event.get(QUIT):break
     elif keys[K_0]:tile_current=0
     elif keys[K_1]:tile_current=1
@@ -51,6 +51,12 @@ while(True):
     elif keys[K_7]:tile_current=7
     elif keys[K_8]:tile_current=8
     elif keys[K_9]:tile_current=9
+    if   keys[K_l]:
+        with open("maps/map_test.msav","w")as file:
+            file.write(mapToTxt(bottom_map))
+    if keys[K_k]:
+        with open("maps/map_test.msav")as file:
+            bottom_map=txtToMap(Block,file.read())
     plr.update(keys)
     if mouse.get_pressed()[0]:
         tilex=int(mouse.get_pos()[0]+plr.x)//TILE_SIZE
