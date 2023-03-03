@@ -23,12 +23,12 @@ This game – just another tower defence game inspired the **"Mindustry"** and *
 ## Dependencies
 * pygame
 
-## System requrements
+## System requirements
 * installed python
 * any CPU(I runned it on Intel Atom with 63 FPS lol)
 * any screen
 * 1GB Memory
-* Windows 7
+* Windows 7 or linux
 
 ## Contribution
 If you have any Improvements/Ideas/Refactors feel free to contact me or make a Pull Request.
