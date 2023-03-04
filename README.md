@@ -1,7 +1,8 @@
 ![ ](https://i.ibb.co/JBGg6Mx/splahh.png)
 # Mindustry Implementation in Python
 This game – just implementation the **"Mindustry"** game, this is not a failed or abandoned port.
-During the creation of this "game" I have never watched / read / listened python guide(this is something like a challenge).
+During the creation of this "game" I have never watched / read / listened python guide and did not use any source code(this is something like a challenge).
+###### Anuken, I'm making this game just for fun, not for money, so if you're not happy with what am I doing or you have complaints about me, then I'm sorry.
 
 ## Running
 * main: $python main.py
