@@ -1,18 +1,21 @@
 ![ ](https://i.ibb.co/JBGg6Mx/splahh.png)
 # Mindustry Implementation in Python
-This game – just another tower defence game inspired the **"Mindustry"** and **"infinitode^2^"** games.
+This game – just implementation the **"Mindustry"** game, this is not a failed or abandoned port.
 During the creation of this "game" I have never watched / read / listened python guide(this is something like a challenge).
 
 ## Running
 * main: $python main.py
 * editor(test): $python maps.editor.py
 
+## There is in the game:
+* Smooth move;
+* Save, load and create maps;
+
 ## Controls
 * Move: WASD/↑←↓→
-* Boost: Shift
-* Shoot: Left Mouse
+* Place blocks: Left Mouse
 * Exit: Esc
-* Select build mode:0-3
+* Select build block:0-3
 * Load map: K
 * Save map: L
 
