@@ -20,6 +20,7 @@ During the creation of this "game" I have never watched / read / listened python
 * Scale map: -,+
 * Move: WASD
 * Exit: Esc
+* Paue: P
 
 ## Current state:
 * Tested only on windows, maybe not work on another OS.
