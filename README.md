@@ -6,26 +6,24 @@ During the creation of this "game" I have never watched / read / listened python
 
 ## Running
 * main: $python main.py
-* editor(test): $python maps.editor.py
 
 ## There is in the game:
-* Smooth move;
-* Save, load and create maps;
+* Smooth move
+* Save, load and create maps
 
 ## Controls
-* Move: WASD/↑←↓→
 * Place blocks: Left Mouse
+* Select build block: 0-3
+* Secret code: Seret)
+* Load map: Ctrl+L
+* Save map: Ctrl+S
+* Scale map: -,+
+* Move: WASD
 * Exit: Esc
-* Select build block:0-3
-* Load map: K
-* Save map: L
 
 ## Current state:
 * Tested only on windows, maybe not work on another OS.
-* Version: 0.2.0
-
-## Dependencies
-* pygame
+* Version: 0.4.0
 
 ## System requirements
 * installed python
