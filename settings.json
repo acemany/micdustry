@@ -1,8 +1,0 @@
-{
-    "sounds":{
-        "sound":false,
-        "sfx":false},
-    "display":{
-        "screen_size":[600,450],
-        "fps":60}
-}
