@@ -8,30 +8,29 @@ During the creation of this "game" I have never watched / read / listened python
 * main: $python main.py
 
 ## There is in the game:
-* Smooth move
-* Save, load and create maps
+* Save, load and edit maps
+* Pause
+* Move
 
 ## Controls
 * Place blocks: Left Mouse
 * Select build block: 0-3
-* Secret code: Seret)
+* Editor on/off: E
 * Load map: Ctrl+L
 * Save map: Ctrl+S
-* Scale map: -,+
+* Scale map: -, +
 * Move: WASD
 * Exit: Esc
-* Paue: P
+* Pause: P
 
 ## Current state:
 * Tested only on windows, maybe not work on another OS.
 * Version: 0.4.0
 
 ## System requirements
-* installed python
 * any CPU(I runned it on Intel Atom with 63 FPS lol)
-* any screen
+* installed python
 * 1GB Memory
-* Windows 7 or linux
 
 ## Contribution
 If you have any Improvements/Ideas/Refactors feel free to contact me or make a Pull Request.
