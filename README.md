@@ -25,12 +25,11 @@ During the creation of this "game" I have never watched / read / listened python
 
 ## Current state:
 * Tested only on windows, maybe not work on another OS.
-* Version: 0.4.0
+* Version: 0.8.3
 
 ## System requirements
-* any CPU(I runned it on Intel Atom with 63 FPS lol)
-* installed python
-* 1GB Memory
+* any PC
+* installed python and pygame
 
 ## Contribution
 If you have any Improvements/Ideas/Refactors feel free to contact me or make a Pull Request.
