@@ -19,11 +19,11 @@ During the creation of this "game" I have never watched / read / listened python
 * Delete blocks: **Right Mouse**
 * Select build block: **0-9**
 * Editor on/off: **E**
-* Load map: **Ctrl**+**L**
-* Save map: **Ctrl**+**S**
-* Load map from: **Ctrl**+**Shift**+**L**
-* Save map to: **Ctrl**+**Shift**+**S**
-* Scale map: **Ctrl** + **-**,**Ctrl** + **+**
+* Load map: **Ctrl** + **L**
+* Save map: **Ctrl** + **S**
+* Load map from: **Ctrl** + **Shift** + **L**
+* Save map to: **Ctrl** + **Shift** + **S**
+* Scale map: **Ctrl** + **-**, **Ctrl** + **+**
 * Move: **WASD**
 * Exit: **Esc**
 * Pause: **P**
