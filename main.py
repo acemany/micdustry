@@ -1,36 +1,36 @@
-from pygame import (display, draw, event, image, key, mouse, sprite, time, transform,
+from pygame import (display, draw, event, font, image, key, mouse, sprite, time, transform,
                     MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION, QUIT, WINDOWRESIZED,
                     KEYDOWN, MOUSEWHEEL, FINGERDOWN, FINGERMOTION, MULTIGESTURE,
                     K_a, K_c, K_d, K_e, K_m, K_o, K_p, K_s, K_w,
                     K_ESCAPE, K_EQUALS, K_MINUS, K_PAUSE,
-                    Rect, Surface, Vector2 as Vec2,
+                    Rect, Surface, Vector2,
                     KMOD_LSHIFT, KMOD_LCTRL,
                     init, quit as Squit,
                     RESIZABLE)
-from potaget import c_p_r, log, open_file_as, save_file_as, MainFont
-from multiprocessing import freeze_support
-from threading import Thread as newThread
+from potaget import c_p_r, log, open_file_as, save_file_as
+# from multiprocessing import freeze_support
+# from threading import Thread as newThread
 from json import dump, load
 from random import randint
 from typing import Tuple
 from math import atan2
 
-#--disable=W0311,W0312,W0614
 
 class Player:
-    def __init__(self, pos: Tuple[int, int] = (0, 0)):
-        self.vel = Vec2()
-        self.pos = Vec2(pos)
+    def __init__(self, pos: Vector2 = (0, 0), speed: float = 0.5):
+        self.pos = Vector2(pos)
+        self.speed = speed
+        self.vel = Vector2()
 
-    def update(self):
-        if KPrss[K_d]:
-            self.vel.x += 0.5
-        if KPrss[K_a]:
-            self.vel.x -= 0.5
-        if KPrss[K_s]:
-            self.vel.y += 0.5
-        if KPrss[K_w]:
-            self.vel.y -= 0.5
+    def update(self, keymap: Tuple[bool]):
+        if keymap[K_d]:
+            self.vel.x += self.speed
+        if keymap[K_a]:
+            self.vel.x -= self.speed
+        if keymap[K_s]:
+            self.vel.y += self.speed
+        if keymap[K_w]:
+            self.vel.y -= self.speed
         self.pos += self.vel
         self.vel *= 0.8
 
@@ -40,16 +40,16 @@ class Entity(sprite.Sprite):
     def get_pos(self):
         return self.pos
 
-    def __init__(self, pos: Vec2 = (2, 2), type: str = "dagger", angle: int = 0,
+    def __init__(self, pos: Vector2 = (2, 2), type: str = "dagger", angle: int = 0,
                  groups: Tuple[sprite.Group] = [], player: bool = False):
         super().__init__(*groups)
         self.rimage = image.load(f"sprites/units/{type}/body.png").convert_alpha()
         self.player = player
         entitys.append(self)
         self.image = self.rimage.copy()
-        self.rpos = Vec2(pos)
+        self.rpos = Vector2(pos)
         self.pos = self.rpos*distance
-        self.vvec = Vec2()
+        self.vvec = Vector2()
         self.angle = angle
         self.w, self.h = self.image.get_size()
         self.rr = max(self.w, self.h)/2/distance
@@ -62,13 +62,13 @@ class Entity(sprite.Sprite):
     def __repr__(self):
         return f"<Entity {'Player'if self.player else 'Entity'}(pos = {self.rpos}, force = {self.vvec})>"
 
-    def move_to(self, tox_y: Vec2, ratio: int = 1):
+    def move_to(self, tox_y: Vector2, ratio: int = 1):
         self.vvec += ((tox_y-self.rpos)/ratio)
 
-    def move_off(self, x_yoff: Vec2):
+    def move_off(self, x_yoff: Vector2):
         self.vvec += x_yoff
 
-    def set_pos(self, x_y: Vec2):
+    def set_pos(self, x_y: Vector2):
         self.rpos.update(x_y)
 
     def update(self):
@@ -98,13 +98,12 @@ class Entity(sprite.Sprite):
 
 
 class Block(sprite.Sprite):
-
     def __init__(self, groups: sprite.Group, block_id: str, pos: Tuple[int, int]):
         global distance
         super().__init__(groups)
         self.block_id = block_id
-        self.pos = Vec2(pos)
-        self.rect = Rect((*Vec2(pos)*distance, distance, distance))
+        self.pos = Vector2(pos)
+        self.rect = Rect((*Vector2(pos)*distance, distance, distance))
         if block_id == "floor_none":
             self.rimage = self.image = Surface((distance, distance))
         else:
@@ -140,9 +139,9 @@ class Map:
             txt = file.read()
         categories = txt.split("\n|")
         content = {
-            "blocks": [[char for char in row.split(", ")]for row in categories[0].split("\n")],
-            "enemy spawn": list(map(int, categories[1].split(", "))),
-            "walls": [[char for char in row.split(", ")]for row in categories[2].split("\n")]}
+            "blocks": [[char for char in row.split(",")]for row in categories[0].split("\n")],
+            "enemy spawn": list(map(int, categories[1].split(","))),
+            "walls": [[char for char in row.split(",")]for row in categories[2].split("\n")]}
         self.enemy_spawn = content["enemy spawn"]
         self.floor_blocks = sprite.Group()
         self.floor_blocks_grid = [[Block(self.floor_blocks, char, (x, y))for x, char in enumerate(row)]
@@ -150,9 +149,9 @@ class Map:
         self.wall_blocks = sprite.Group()
         self.wall_blocks_grid = [[Block(self.wall_blocks, char, (x, y))for x, char in enumerate(row)]
                                  for y, row in enumerate(content["walls"])]
-        self.rsurfsize = Vec2(len(self.floor_blocks_grid[0])*distance,
-                              len(self.floor_blocks_grid)*distance)
-        self.surfsize = Vec2(self.rsurfsize)
+        self.rsurfsize = Vector2(len(self.floor_blocks_grid[0])*distance,
+                                 len(self.floor_blocks_grid)*distance)
+        self.surfsize = Vector2(self.rsurfsize)
         self.rfloor_surface = Surface(self.surfsize)
         self.floor_surface = self.rfloor_surface.copy()
         [[block.draw(self.floor_surface)for block in blocks]for blocks in self.floor_blocks_grid]
@@ -234,7 +233,7 @@ class Switch:
                     win.blit(sw_off, pos)
             else:
                 win.blit(sw_off_disabled, pos)
-        MAINFONT.drat(self.name, font_antialias, (pos[0]+sw_size[0]+4, pos[1]+(sw_size[1]-MAINFONT.h)/2), win)
+        return MAINFONT.render(self.name, font_antialias, Ctext), (pos[0]+sw_size[0]+4, pos[1]+(sw_size[1]-font_height)/2)
 
 
 class Slider:
@@ -248,49 +247,50 @@ class Slider:
         out.set_colorkey((0, 0, 0))
         draw.rect(out, (69, 69, 69), (0, 0, h_width+slid_pw, slid_h), slid_bw)
         draw.rect(out, (255, 255, 255) if self.on else (69, 69, 69), (self.num*slid_SC, 0, slid_pw, slid_h))
-        MAINFONT.drat(f"{self.num}", font_antialias, (h_width-MAINFONT.font.size(f"{self.num}")[0]-slid_bw,
-                                                      (slid_h-MAINFONT.font.get_height())/2), out)
-        MAINFONT.drat(self.name, font_antialias, (slid_bw+slid_pw, (slid_h-MAINFONT.font.get_height())/2), out)
+        out.blits(((MAINFONT.render(f"{self.num}", font_antialias, Ctext),
+                    (h_width-MAINFONT.size(f"{self.num}")[0]-slid_bw, (slid_h-font_height)/2)),
+                   (MAINFONT.render(self.name, font_antialias, Ctext),
+                    (slid_bw+slid_pw, (slid_h-font_height)/2))))
         return out
 
 
 def make_button(size: Tuple[int, int], over: bool = False):
     size = (max(size[0], butw), max(size[1], buth))
-    out = Surface(Vec2(36, 27)+size)
+    out = Surface(Vector2(36, 27)+size)
     out.fill((255, 0, 255))
     out.set_colorkey((255, 0, 255))
     color = (255, 255, 255) if over else (69, 69, 69)
-    draw.polygon(out, (0, 0, 0), ((1, buth2-5+1),
-                                  (butw2-10+1, 0+1),
-                                  (size[0]-butw2+10-1, 0+1),
-                                  (size[0]-1, buth2-5+1),
-                                  (size[0]-1, size[1]-buth2+5-1),
-                                  (size[0]-butw2+10-1, size[1]-1),
-                                  (butw2-10+1, size[1]-1),
-                                  (0+1, size[1]-buth2+5-1)))
-    draw.lines(out, color, 1, ((1, buth2-5+1),
-                               (butw2-10+1, 0+1),
-                               (size[0]-butw2+10-1, 0+1),
-                               (size[0]-1, buth2-5+1),
-                               (size[0]-1, size[1]-buth2+5-1),
-                               (size[0]-butw2+10-1, size[1]-1),
-                               (butw2-10+1, size[1]-1),
-                               (0+1, size[1]-buth2+5-1)), 4)
-    draw.line(out, color, (1, buth2-5+1), (butw2-10+1, 0+1), 6)
-    draw.line(out, color, (size[0]-butw2 + 10-2, 0+1), (size[0]-1, buth2-5+2), 5)
-    draw.line(out, color, (size[0]-1, size[1]-buth2+5-1), (size[0]-butw2+10-2, size[1]), 5)
-    draw.line(out, color, (butw2-10+2, size[1]), (1,      size[1]-buth2+5-1), 6)
+    draw.polygon(out, (0, 0, 0), ((1, buth2-4),
+                                  (butw2-9, 1),
+                                  (size[0]-butw2+9, 1),
+                                  (size[0]-1, buth2-4),
+                                  (size[0]-1, size[1]-buth2+4),
+                                  (size[0]-butw2+9, size[1]-1),
+                                  (butw2-9, size[1]-1),
+                                  (1, size[1]-buth2+4)))
+    draw.lines(out, color, 1, ((1, buth2-4),
+                               (butw2-9, 1),
+                               (size[0]-butw2+9, 1),
+                               (size[0]-1, buth2-4),
+                               (size[0]-1, size[1]-buth2+4),
+                               (size[0]-butw2+9, size[1]-1),
+                               (butw2-9, size[1]-1),
+                               (1, size[1]-buth2+4)), 4)
+    draw.line(out, color, (1, buth2-4), (butw2-9, 1), 6)
+    draw.line(out, color, (size[0]-butw2+8, 1), (size[0]-1, buth2-3), 5)
+    draw.line(out, color, (size[0]-1, size[1]-buth2+4), (size[0]-butw2+8, size[1]), 5)
+    draw.line(out, color, (butw2-8, size[1]), (1, size[1]-buth2+4), 6)
     return out
 
 
 def reinit_textures():
     global win, sc_res, width, height, h_sc_res, h_width, h_height, q_sc_res, q_width, q_height, Stitle, Sinfo, Sexit, \
-           sw_on_disabled, sw_on_over, sw_on, sw_off_disabled, sw_off_over, sw_off, menu_gap, mbuth, mbutw, butw, \
-           buth, butw2, buth2, slid_pw, slid_h, slid_bw, slid_SC, sw_size, TB_pos, TB_x, TB_y, TOOLBAR_SURFACES, \
-           icon_defense, icon_secret, icon_break
-    win = display.set_mode((max(300, a.dict["x"]), max(300, a.dict["y"]))
+        sw_on_disabled, sw_on_over, sw_on, sw_off_disabled, sw_off_over, sw_off, menu_gap, mbuth, mbutw, butw, \
+        buth, butw2, buth2, slid_pw, slid_h, slid_bw, slid_SC, sw_size, TB_pos, TB_x, TB_y, TOOLBAR_SURFACES, \
+        icon_defense, icon_secret, icon_break
+    win = display.set_mode((max(300, a.x), max(300, a.y))
                            if not Gf11 else (0, 0), RESIZABLE, vsync=Gvsync)
-    sc_res = width,  height = Vec2(win.get_size())
+    sc_res = width,  height = Vector2(win.get_size())
     h_sc_res = h_width, h_height = sc_res/2
     q_sc_res = q_width, q_height = sc_res/4
 
@@ -347,21 +347,23 @@ def leave():
 
 
 init()
-freeze_support()
+# freeze_support()
 
 with open("settings.json", "r")as f:
-    j = load(f)
-    dev = j["devpop"]
-    mous = j["mouse"]
-    Gvsync = j["vsync"]
-    max_FPS = j["max_fps"]
-    Gf11 = j["fullscreen"]
-    Gmobui = j["mobile_ui"]
+    json_data = load(f)
+    dev = json_data["devpop"]
+    mous = json_data["mouse"]
+    Gvsync = json_data["vsync"]
+    max_FPS = json_data["max_fps"]
+    Gf11 = json_data["fullscreen"]
+    Gmobui = json_data["mobile_ui"]
     BLOCK_SIZE = distance = 16
-    font_antialias = j["font_antialias"]
-    Sscale = transform.smoothscale if j["antialias"] else transform.scale
+    font_antialias = json_data["font_antialias"]
+    Sscale = transform.smoothscale if json_data["antialias"] else transform.scale
     win = display.set_mode((800, 600) if not Gf11 else (0, 0), flags=RESIZABLE, vsync=Gvsync)
-    MAINFONT = MainFont((0, 0), (119, 119, 119), j["font_size"])
+    MAINFONT = font.Font("gameFont.woff", json_data["font_size"])
+    font_height = json_data["font_size"]
+    Ctext = (127, 127, 127)
 
 try:
     Srtitle = image.load("sprites/logo.png").convert_alpha()
@@ -409,7 +411,7 @@ except Exception as e:
 
 reinit_textures()
 
-MPos = Vec2()
+MPos = Vector2()
 
 CLOCK = time.Clock()
 SWpicAA = Switch(Sscale == transform.smoothscale, name="linear filtering")
@@ -418,7 +420,7 @@ SWfontAA = Switch(font_antialias, name="font antialias")
 SWmobui = Switch(Gmobui, name="mobile ui")
 SWdev = Switch(dev, name="dev mode???!?!?")
 SWmouse = Switch(mous, name="in-game mouse")
-SLfont_size = Slider(MAINFONT.h, name="font size*")
+SLfont_size = Slider(font_height, name="font size*")
 SLmax_FPS = Slider(max_FPS, name="max FPS")
 menu_page = 0  # menu, settings
 
@@ -439,12 +441,12 @@ while 1:
             leave()
         win.blits(((Sinfo, (0, height-Sinfo .get_height())),
                    (Stitle, (h_width-Stitle.get_width()/2, 0))))
-        win.blits([(make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height(),             mbutw, mbuth)), (h_width-width/6, Stitle.get_height())),
+        win.blits(((make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height(),             mbutw, mbuth)), (h_width-width/6, Stitle.get_height())),
                    (make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height()+mbuth+4,     mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+mbuth+4)),
-                   (make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height()+(mbuth+4)*2, mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+(mbuth+4)*2))])
-        MAINFONT.draw("load",     font_antialias, (h_width, Stitle.get_height()+mbuth/3),           1)
-        MAINFONT.draw("settings", font_antialias, (h_width, Stitle.get_height()+mbuth+4+mbuth/3),   1)
-        MAINFONT.draw("quit",     font_antialias, (h_width, Stitle.get_height()+mbuth*2+8+mbuth/3), 1)
+                   (make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height()+(mbuth+4)*2, mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+(mbuth+4)*2))))
+        win.blits(((MAINFONT.render("load",     font_antialias, Ctext), ((width-MAINFONT.size("load")[0])/2, Stitle.get_height()+mbuth/3)),
+                   (MAINFONT.render("settings", font_antialias, Ctext), ((width-MAINFONT.size("settings")[0])/2, Stitle.get_height()+mbuth/3+mbuth+4)),
+                   (MAINFONT.render("quit",     font_antialias, Ctext), ((width-MAINFONT.size("quit")[0])/2, Stitle.get_height()+mbuth/3+mbuth*2+8))))
         for a in event.get(MOUSEBUTTONDOWN):
             if c_p_r(*a.pos, h_width-width/6, Stitle.get_height(), mbutw, mbuth):
                 CUM = Player()
@@ -459,11 +461,11 @@ while 1:
                 MResized = False
                 ucontrol = False
                 clearing = False
-                u_purpos = Vec2()
-                MPos = Vec2()
+                u_purpos = Vector2()
+                MPos = Vector2()
 
                 editor_tile = "floor_none"
-                mouse_world_pos = Vec2()
+                mouse_world_pos = Vector2()
                 editor_category = 0  # floor, wall
                 entitys = [Entity()for a in []]
                 walls_collider = [Block()for a in []]
@@ -483,9 +485,9 @@ while 1:
                 [(draw.rect(a, (69,  69,   69), (0, 0, q_width, q_height)),
                   draw.rect(a, (103, 103, 103), (2, 2, q_width, q_height)))for a in TOOLBAR_SURFACES]
 
-                [(TOOLBAR_SURFACES)[a].blits([(Sscale(surf, (distance, distance)), ((pos % (win.get_width()//24))*24+6,
+                [(TOOLBAR_SURFACES)[a].blits(((Sscale(surf, (distance, distance)), ((pos % (win.get_width()//24))*24+6,
                                                                                     pos // (win.get_width()//24)*24+6))
-                                              for pos, surf in enumerate(surfs)])
+                                              for pos, surf in enumerate(surfs)))
                  for a, surfs in enumerate(to_toolbar)]
 
                 [(draw.lines(surf, (49, 49, 49), False,
@@ -516,15 +518,15 @@ while 1:
                         elif a.type == KEYDOWN:
                             if a.mod == KMOD_LCTRL+KMOD_LSHIFT:
                                 if KPrss[K_s]:
-                                    newThread(target=MAP.save).start()
+                                    target = MAP.save()
                                 elif KPrss[K_o]:
                                     walls_collider = []
-                                    newThread(target=MAP.__init__).start()
+                                    target = MAP.__init__()
                             elif a.mod == KMOD_LCTRL:
                                 if KPrss[K_s]:
-                                    newThread(target=MAP.save,     args=["map1"]).start()
+                                    target = MAP.save("map1")
                                 elif KPrss[K_o]:
-                                    newThread(target=MAP.__init__, args=["map1"]).start()
+                                    target = MAP.__init__("map1")
                             if KPrss[K_c]:
                                 ucontrol = not ucontrol
                             if KPrss[K_m]:
@@ -543,19 +545,19 @@ while 1:
                                 distance_ratio = distance/BLOCK_SIZE
                                 Map.resize(MAP)
                         elif a.type == MOUSEWHEEL:
-                            mouse_wheel_motion = int(distance+a.__dict__["y"])
+                            mouse_wheel_motion = int(distance+a.y)
                             if 8 <= mouse_wheel_motion <= 64:
                                 distance = mouse_wheel_motion
                                 MResized = True
                         elif a.type == FINGERMOTION:
                             if a.finger_id == 0:
-                                dpos = Vec2(a.dx*width, a.dy*height)
+                                dpos = Vector2(a.dx*width, a.dy*height)
                             if a.finger_id == 1 and MMovs:
                                 MMove = True
-                                dpos += Vec2(a.dx*width, a.dy*height)
+                                dpos += Vector2(a.dx*width, a.dy*height)
                         elif a.type == MULTIGESTURE:
                             MResized = True
-                            distance += a.__dict__["pinched"]*16
+                            distance += a.pinched*16
                         if a.type == MOUSEBUTTONDOWN:
                             _dict = a.__dict__
                             if _dict["button"] == 1:
@@ -594,7 +596,7 @@ while 1:
                                     ucontrol = not ucontrol
                                 else:
                                     if ucontrol:
-                                        u_purpos = Vec2(mouse_world_pos[:])/distance
+                                        u_purpos = Vector2(mouse_world_pos[:])/distance
                                     else:
                                         drawing = True
                             elif _dict["button"] == 3:
@@ -612,9 +614,9 @@ while 1:
                             distance_ratio = distance/BLOCK_SIZE
                             for a in entitys:
                                 a.r = a.rr*BLOCK_SIZE/distance_ratio
-                            newThread(MAP.resize()).start()
+                            MAP.resize()
                     if not pause:
-                        CUM.update()
+                        CUM.update(KPrss)
                         if editor:
                             if drawing:
                                 MAP.place(erasing)
@@ -629,22 +631,21 @@ while 1:
                                 if pto == (0, 0):
                                     pto = (0, 1e-8)
                                 elif abs(pto[0])+abs(pto[1]) < 5:
-                                    en.vvec += (pto).normalize()/32
+                                    en.vvec += pto.normalize()/32
                                 else:
-                                    en.vvec += (pto).normalize()/16
+                                    en.vvec += pto.normalize()/16
                             en.update()
                             for cub in walls_collider:
                                 if cub.pos.x-en.w/2 < en.pos.x < cub.pos.x+cub.w+en.w/2:
                                     if cub.pos.y-en.h/2 < en.pos.y < cub.pos.y+cub.h+en.h/2:
-                                        collided_pos = Vec2(
+                                        collided_pos = Vector2(
                                             max(cub.pos.x, min(en.pos.x, cub.pos.x+cub.w))-en.pos.x,
                                             max(cub.pos.y, min(en.pos.y, cub.pos.y+cub.h))-en.pos.y)
-                                        if ((collided_pos[0])**2+(collided_pos[1])**2) < en.r**2:
+                                        if collided_pos.length() < en.r:
                                             if collided_pos.length() < 1:
-                                                en.vvec -= (Vec2(randint(-1, 1), randint(-1, 1))/4+(0.5, 0.5))*en.speed
+                                                en.vvec -= (Vector2(randint(-1, 1), randint(-1, 1))/4+(0.5, 0.5))*en.speed
                                             else:
-                                                en.vvec -= Vec2(collided_pos[0]/cub.w,
-                                                                collided_pos[1]/cub.w)*en.speed/16
+                                                en.vvec -= collided_pos/cub.w*en.speed/16
                                             en.collided = 255
                             for fn in entitys[a+1: len(entitys)]:
                                 distxy = distx, disty = fn.rpos-en.rpos
@@ -653,7 +654,7 @@ while 1:
                                     continue
                                 if dist < 1:
                                     dist = 10
-                                    force = Vec2(randint(-1, 1), randint(-1, 1))/20
+                                    force = Vector2(randint(-1, 1), randint(-1, 1))/20
                                 else:
                                     force = distxy*(1/dist**2)/dist
                                 en.vvec -= force
@@ -666,17 +667,17 @@ while 1:
                         draw.rect(win, (69, 69, 69) if ucontrol else (49, 49, 49),
                                   (0, height-width*0.04, width*0.12, width*0.04))
                         draw.rect(win, (69, 69, 69), (0, height-width*0.04, width*0.12, width*0.04), slid_bw)
-                        MAINFONT.draw("control", font_antialias, ((width*0.12-MAINFONT.font.size("control")[0])/2,
-                                                                   height-(width*0.04+MAINFONT.h)/2))
+                        win.blit(MAINFONT.render("control", font_antialias, Ctext),
+                                 ((width*0.12-MAINFONT.size("control")[0])/2,
+                                  height-(width*0.04+font_height)/2))
                     win.blit(TOOLBAR_SURFACES[editor_category], h_sc_res+q_sc_res)
                     if dev:
-                        MAINFONT.draw(
-                         f"""TILE: {
-                             editor_tile}\nFPS: {
-                             int(CLOCK.get_fps())}\nPOS: {
-                             CUM.pos}\nSPEED: {
-                             CUM.vel}\nVIEWING RANGE: {
-                             distance}""", font_antialias, (5, 5))
+                        win.blits(((MAINFONT.render(i, font_antialias, Ctext), (5, 5 + font_height*j))
+                                  for j, i in enumerate((f"TILE: {editor_tile}",
+                                                         f"FPS: {int(CLOCK.get_fps())}",
+                                                         f"POS: {CUM.pos}",
+                                                         f"SPEED: {CUM.vel}",
+                                                         f"VIEWING RANGE: {distance}"))))
                     if mous:
                         win.blit(CURSOR, (MPos[0]-2, MPos[1]-2))
                     display.update()
@@ -727,19 +728,19 @@ while 1:
         for b, a in enumerate(event.get(MULTIGESTURE)):
             x = a.x*width
             y = a.y*height
-            MAINFONT.drat(f"{a.__dict__}", font_antialias, (8, 8+30*b), win)
+            win.blit(MAINFONT.render(f"{a.__dict__}", font_antialias, Ctext), (8, 8+30*b))
             draw.circle(win, (255, 191, 255), (x, y), 20)
 
-        win.blit(Sexit,              (width/64, height/48))
-        win.blit(SLfont_size.draw(), (q_width, height/48))
-        win.blit(SLmax_FPS  .draw(), (q_width, height/48+menu_gap))
-        SWfontAA.draw((q_width,                height/48+menu_gap*2))
-        SWpicAA .draw((q_width,                height/48+menu_gap*3))
-        SWvsync .draw((q_width,                height/48+menu_gap*4))
-        SWmobui .draw((q_width,                height/48+menu_gap*5))
-        SWmouse .draw((q_width,                height/48+menu_gap*6))
-        SWdev   .draw((q_width,                height/48+menu_gap*7))
-        MAINFONT.drat("*: Применяется после перезапуска", font_antialias, (8, height-MAINFONT.h-8), win)
+        win.blits(((Sexit,              (width/64, height/48)),
+                   (SLfont_size.draw(), (q_width, height/48)),
+                   (SLmax_FPS  .draw(), (q_width, height/48+menu_gap)),
+                   SWfontAA.draw((q_width, height/48+menu_gap*2)),
+                   SWpicAA .draw((q_width, height/48+menu_gap*3)),
+                   SWvsync .draw((q_width, height/48+menu_gap*4)),
+                   SWmobui .draw((q_width, height/48+menu_gap*5)),
+                   SWmouse .draw((q_width, height/48+menu_gap*6)),
+                   SWdev   .draw((q_width, height/48+menu_gap*7)),
+                   (MAINFONT.render("*: Применяется после перезапуска", font_antialias, Ctext), (8, height-font_height-8))))
 
     display.update()
     CLOCK.tick(max_FPS)

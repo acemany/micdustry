@@ -1,72 +1,12 @@
 from tkinter.filedialog import askopenfilename, asksaveasfilename
-from pygame import (display, event, font, Surface, Vector2, Rect)
 from datetime import datetime, timedelta, timezone
+from pygame import Vector2, Rect
 from platform import system
-from typing import Tuple
 from tkinter import Tk
 
 
 __all__ = ["c_c_c", "c_c_r", "c_r_r", "c_p_c", "c_p_r", "orient",
-           "log", "open_file_as", "save_file_as",
-           "MainFont"]
-
-
-class MainFont:
-    def __init__(self, pos: Tuple[int, int], color: str = "#BBBBBB", scale: int = 6):
-        self.WIN = display.get_surface()
-        self.font = font.Font("gameFont.woff", scale)
-        self.w = self.font.size("n")[0]
-        self.h = self.font.get_height()
-        self.indicator_pos = 0
-        self.x, self.y = pos
-        self.color = color
-        self.text = ""
-
-    def text_input(self, key_in: event.Event, text_in: event.Event, lining: bool = True):
-        key = key_in .__dict__["unicode"]
-        char = text_in.__dict__["text"]
-        if key == "\x08":
-            self.text = self.text[:-1:]
-        elif lining and key == "\r":
-            self.text += "\n"
-        elif char != "":
-            self.text += char
-        print(text_in, " ", char)
-
-    def draw(self, text: str, antialians: int, pos: Tuple[int, int], centering: int = 0, bgcolor: str = None):
-        if bgcolor is not None:
-            if centering:
-                self.WIN.blits([(self.font.render(
-                    text, antialians, self.color, bgcolor), (pos[0]-self.font.size(text)[0]/2, pos[1]+y*self.h))
-                        for y, text in enumerate(text.split("\n"))])
-            else:
-                self.WIN.blits([(self.font.render(
-                    text, antialians, self.color, bgcolor), (pos[0], pos[1]+y*self.h))
-                        for y, text in enumerate(text.split("\n"))])
-        else:
-            if centering:
-                self.WIN.blits([(self.font.render(
-                    text, antialians, self.color), (pos[0]-self.font.size(text)[0]/2, pos[1]+y*self.h))
-                        for y, text in enumerate(text.split("\n"))])
-            else:
-                self.WIN.blits([(self.font.render(
-                    text, antialians, self.color), (pos[0], pos[1]+y*self.h))
-                        for y, text in enumerate(text.split("\n"))])
-
-    def drat(self, text: str, antialians: int, pos: Tuple[int, int], win: Surface, centering: int = 0):
-        if centering:
-            win.blits([(self.font.render(
-                text, antialians, self.color), (pos[0]-self.font.size(text)[0]/2, pos[1]+y*self.h))
-                    for y, text in enumerate(text.split("\n"))])
-        else:
-            win.blits([(self.font.render(
-                text, antialians, self.color), (pos[0], pos[1]+y*self.h))
-                    for y, text in enumerate(text.split("\n"))])
-
-    def blit(self, antialians: int):
-        self.WIN.blits([(self.font.render(
-            text, antialians, self.color), (self.x, self.y+y*self.h))
-                for y, text in enumerate(self.text.split("\n"))])
+           "log", "open_file_as", "save_file_as"]
 
 
 def log(e: str) -> None:
@@ -131,4 +71,4 @@ def c_p_c(px, py, cx, cy, cr) -> bool:
 
 
 def c_p_r(px, py, rx, ry, rw, rh) -> bool:
-    return Rect(rx, ry, rw, rh).collidepoint(px, py)  # rx < px < rx+rw and ry < py < ry+rh
+    return Rect(rx, ry, rw, rh).collidepoint(px, py)
