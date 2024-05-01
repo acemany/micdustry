@@ -90,7 +90,7 @@ class Entity(sprite.Sprite):
         self.vvec *= 0.7
 
     def draw(self):
-        pos = -CUM.pos*distance_ratio+self.rect.center+h_sc_res
+        pos = -CAM.pos*distance_ratio+self.rect.center+h_sc_res
         draw.circle(win, (self.collided, 0, 255-self.collided), pos.xy, self.r, 1)
         self.image = transform.rotate(Sscale(self.rimage, (int(self.w*distance_ratio),
                                                            int(self.h*distance_ratio))), -self.angle*57.2958-90)
@@ -172,7 +172,7 @@ class Map:
         self.wall_blocks.draw(self.wall_surface)
 
     def place(self, delete: bool = False):
-        block_pos = MPos+CUM.pos/BLOCK_SIZE*distance-h_sc_res
+        block_pos = MPos+CAM.pos/BLOCK_SIZE*distance-h_sc_res
         if 0 <= block_pos[0] < self.surfsize[0] and 0 <= block_pos[1] < self.surfsize[1]:
             block_pos = block_pos//distance
             editor_til = "floor_none"if delete else editor_tile
@@ -185,7 +185,7 @@ class Map:
             block.draw(self.wall_surface if editor_category == 1 else self.floor_surface)
 
     def draw(self):
-        pos = -(CUM.pos*distance_ratio-h_sc_res)
+        pos = -(CAM.pos*distance_ratio-h_sc_res)
         win.blit(self.floor_surface, pos)
         win.blit(self. wall_surface, pos)
 
@@ -449,7 +449,7 @@ while 1:
                    (MAINFONT.render("quit",     font_antialias, Ctext), ((width-MAINFONT.size("quit")[0])/2, Stitle.get_height()+mbuth/3+mbuth*2+8))))
         for a in event.get(MOUSEBUTTONDOWN):
             if c_p_r(*a.pos, h_width-width/6, Stitle.get_height(), mbutw, mbuth):
-                CUM = Player()
+                CAM = Player()
                 BLOCK_SIZE = distance = 16
                 TB_pos = TB_x, TB_y = h_sc_res+q_sc_res
 
@@ -608,7 +608,7 @@ while 1:
                             for b in MMovs:
                                 dpos += b.rel
                             MMove = False
-                            CUM.pos -= dpos/(len(MMovs)+1)
+                            CAM.pos -= dpos/(len(MMovs)+1)
                         if MResized:
                             MResized = False
                             distance_ratio = distance/BLOCK_SIZE
@@ -616,7 +616,7 @@ while 1:
                                 a.r = a.rr*BLOCK_SIZE/distance_ratio
                             MAP.resize()
                     if not pause:
-                        CUM.update(KPrss)
+                        CAM.update(KPrss)
                         if editor:
                             if drawing:
                                 MAP.place(erasing)
@@ -675,8 +675,8 @@ while 1:
                         win.blits(((MAINFONT.render(i, font_antialias, Ctext), (5, 5 + font_height*j))
                                   for j, i in enumerate((f"TILE: {editor_tile}",
                                                          f"FPS: {int(CLOCK.get_fps())}",
-                                                         f"POS: {CUM.pos}",
-                                                         f"SPEED: {CUM.vel}",
+                                                         f"POS: {CAM.pos}",
+                                                         f"SPEED: {CAM.vel}",
                                                          f"VIEWING RANGE: {distance}"))))
                     if mous:
                         win.blit(CURSOR, (MPos[0]-2, MPos[1]-2))
