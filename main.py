@@ -7,7 +7,9 @@ from pygame import (display, draw, event, font, image, key, mouse, sprite, time,
                     KMOD_LSHIFT, KMOD_LCTRL,
                     init, quit as Squit,
                     RESIZABLE)
-from potaget import c_p_r, log, open_file_as, save_file_as
+from libs.file import open_file_as, save_file_as
+from libs import collision
+from libs.log import log
 # from multiprocessing import freeze_support
 # from threading import Thread as newThread
 from json import dump, load
@@ -74,13 +76,13 @@ class Entity(sprite.Sprite):
     def update(self):
         if self.player:
             if KPrss[K_w]:
-                self.vvec.y -= self.speed  # ( self.speed*cosa, self.speed*sina)
+                self.vvec.y -= self.speed
             if KPrss[K_s]:
-                self.vvec.y += self.speed  # (-self.speed*cosa, -self.speed*sina)
+                self.vvec.y += self.speed
             if KPrss[K_a]:
-                self.vvec.x -= self.speed  # ( self.speed*sina, -self.speed*cosa)
+                self.vvec.x -= self.speed
             if KPrss[K_d]:
-                self.vvec.x += self.speed  # (-self.speed*sina, self.speed*cosa)
+                self.vvec.x += self.speed
             self.angle = (self.angle*0.8+atan2(*(MPos-self.pos).yx)*0.2)
         self.angle = (self.angle*0.9+atan2(*self.vvec.yx)*0.1)
         self.r = self.rr*distance
@@ -219,7 +221,7 @@ class Switch:
     def draw(self, pos: Tuple[int, int]):
         if self.truth:
             if self.switchable:
-                if c_p_r(*MPos, *pos, *sw_size):
+                if collision.point_rect(*MPos, *pos, *sw_size):
                     win.blit(sw_on_over, pos)
                 else:
                     win.blit(sw_on, pos)
@@ -227,7 +229,7 @@ class Switch:
                 win.blit(sw_on_disabled, pos)
         else:
             if self.switchable:
-                if c_p_r(*MPos, *pos, *sw_size):
+                if collision.point_rect(*MPos, *pos, *sw_size):
                     win.blit(sw_off_over, pos)
                 else:
                     win.blit(sw_off, pos)
@@ -441,14 +443,14 @@ while 1:
             leave()
         win.blits(((Sinfo, (0, height-Sinfo .get_height())),
                    (Stitle, (h_width-Stitle.get_width()/2, 0))))
-        win.blits(((make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height(),             mbutw, mbuth)), (h_width-width/6, Stitle.get_height())),
-                   (make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height()+mbuth+4,     mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+mbuth+4)),
-                   (make_button((mbutw, mbuth), c_p_r(*MPos, h_width-width/6, Stitle.get_height()+(mbuth+4)*2, mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+(mbuth+4)*2))))
+        win.blits(((make_button((mbutw, mbuth), collision.point_rect(*MPos, h_width-width/6, Stitle.get_height(),             mbutw, mbuth)), (h_width-width/6, Stitle.get_height())),
+                   (make_button((mbutw, mbuth), collision.point_rect(*MPos, h_width-width/6, Stitle.get_height()+mbuth+4,     mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+mbuth+4)),
+                   (make_button((mbutw, mbuth), collision.point_rect(*MPos, h_width-width/6, Stitle.get_height()+(mbuth+4)*2, mbutw, mbuth)), (h_width-width/6, Stitle.get_height()+(mbuth+4)*2))))
         win.blits(((MAINFONT.render("load",     font_antialias, Ctext), ((width-MAINFONT.size("load")[0])/2, Stitle.get_height()+mbuth/3)),
                    (MAINFONT.render("settings", font_antialias, Ctext), ((width-MAINFONT.size("settings")[0])/2, Stitle.get_height()+mbuth/3+mbuth+4)),
                    (MAINFONT.render("quit",     font_antialias, Ctext), ((width-MAINFONT.size("quit")[0])/2, Stitle.get_height()+mbuth/3+mbuth*2+8))))
         for a in event.get(MOUSEBUTTONDOWN):
-            if c_p_r(*a.pos, h_width-width/6, Stitle.get_height(), mbutw, mbuth):
+            if collision.point_rect(*a.pos, h_width-width/6, Stitle.get_height(), mbutw, mbuth):
                 CAM = Player()
                 BLOCK_SIZE = distance = 16
                 TB_pos = TB_x, TB_y = h_sc_res+q_sc_res
@@ -559,47 +561,46 @@ while 1:
                             MResized = True
                             distance += a.pinched*16
                         if a.type == MOUSEBUTTONDOWN:
-                            _dict = a.__dict__
-                            if _dict["button"] == 1:
-                                if c_p_r(*MPos, TB_x, TB_y, q_width, q_height):
+                            if a.button == 1:
+                                if collision.point_rect(*MPos, TB_x, TB_y, q_width, q_height):
                                     if editor_category == 0:
-                                        if c_p_r(*MPos,   TB_x+6, TB_y+6, 24, 24):
+                                        if collision.point_rect(*MPos,   TB_x+6, TB_y+6, 24, 24):
                                             editor_tile = "floor_char"
-                                        elif c_p_r(*MPos, TB_x+30, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+30, TB_y+6, 24, 24):
                                             editor_tile = "floor_dark-panel"
-                                        elif c_p_r(*MPos, TB_x+54, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+54, TB_y+6, 24, 24):
                                             editor_tile = "floor_grass"
-                                        elif c_p_r(*MPos, TB_x+78, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+78, TB_y+6, 24, 24):
                                             editor_tile = "floor_sand"
-                                        elif c_p_r(*MPos, TB_x+102, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+102, TB_y+6, 24, 24):
                                             editor_tile = "floor_stone"
                                     elif editor_category == 1:
-                                        if c_p_r(*MPos,   TB_x+6, TB_y+6, 24, 24):
+                                        if collision.point_rect(*MPos,   TB_x+6, TB_y+6, 24, 24):
                                             editor_tile = "wall_char"
-                                        elif c_p_r(*MPos, TB_x+30, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+30, TB_y+6, 24, 24):
                                             editor_tile = "wall_copper"
-                                        elif c_p_r(*MPos, TB_x+54, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+54, TB_y+6, 24, 24):
                                             editor_tile = "wall_dark-panel"
-                                        elif c_p_r(*MPos, TB_x+78, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+78, TB_y+6, 24, 24):
                                             editor_tile = "wall_grass"
-                                        elif c_p_r(*MPos, TB_x+102, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+102, TB_y+6, 24, 24):
                                             editor_tile = "wall_sand"
-                                        elif c_p_r(*MPos, TB_x+126, TB_y+6, 24, 24):
+                                        elif collision.point_rect(*MPos, TB_x+126, TB_y+6, 24, 24):
                                             editor_tile = "wall_stone"
-                                    if c_p_r(*MPos,   TB_x+q_width-distance-4, TB_y+30,                  24, 24):
+                                    if collision.point_rect(*MPos,   TB_x+q_width-distance-4, TB_y+30,                  24, 24):
                                         editor_category = 0
-                                    elif c_p_r(*MPos, TB_x+q_width-distance-4, TB_y+6,                   24, 24):
+                                    elif collision.point_rect(*MPos, TB_x+q_width-distance-4, TB_y+6,                   24, 24):
                                         editor_category = 1
-                                    elif c_p_r(*MPos, TB_x+6,                  TB_y+q_height-distance-4, 24, 24):
+                                    elif collision.point_rect(*MPos, TB_x+6,                  TB_y+q_height-distance-4, 24, 24):
                                         erasing = not erasing
-                                elif Gmobui and c_p_r(*MPos, 0, height-width*0.04, width*0.12, width*0.04):
+                                elif Gmobui and collision.point_rect(*MPos, 0, height-width*0.04, width*0.12, width*0.04):
                                     ucontrol = not ucontrol
                                 else:
                                     if ucontrol:
                                         u_purpos = Vector2(mouse_world_pos[:])/distance
                                     else:
                                         drawing = True
-                            elif _dict["button"] == 3:
+                            elif a.button == 3:
                                 clearing = True
                         elif a.type == MOUSEBUTTONUP:
                             drawing = False
@@ -684,9 +685,9 @@ while 1:
                     CLOCK.tick(max_FPS)
                 mouse.set_visible(True)
                 KPrss = []
-            elif c_p_r(*a.pos, h_width-width/6, Stitle.get_height()+mbuth+4,   mbutw, mbuth):
+            elif collision.point_rect(*a.pos, h_width-width/6, Stitle.get_height()+mbuth+4,   mbutw, mbuth):
                 menu_page = 1
-            elif c_p_r(*a.pos, h_width-width/6, Stitle.get_height()+mbuth*2+8, mbutw, mbuth):
+            elif collision.point_rect(*a.pos, h_width-width/6, Stitle.get_height()+mbuth*2+8, mbutw, mbuth):
                 leave()
     elif menu_page == 1:
         if KPrss[K_ESCAPE]:
@@ -698,13 +699,13 @@ while 1:
                 SLmax_FPS  .num = max_FPS = min(max((MPos[0]-q_width-slid_pw/2)/slid_SC//1, 0), 100)
         for a in event.get(MOUSEBUTTONDOWN):
             if a.button == 1:
-                SLfont_size.on = c_p_r(*MPos, q_width+SLfont_size.num*slid_SC, height/48,          slid_pw, slid_h)
-                SLmax_FPS  .on = c_p_r(*MPos, q_width+SLmax_FPS  .num*slid_SC, height/48+menu_gap, slid_pw, slid_h)
-                if c_p_r(*MPos, width/64, height/48, *Sexit.get_size()):
+                SLfont_size.on = collision.point_rect(*MPos, q_width+SLfont_size.num*slid_SC, height/48,          slid_pw, slid_h)
+                SLmax_FPS  .on = collision.point_rect(*MPos, q_width+SLmax_FPS  .num*slid_SC, height/48+menu_gap, slid_pw, slid_h)
+                if collision.point_rect(*MPos, width/64, height/48, *Sexit.get_size()):
                     menu_page = 0
-                if c_p_r(*MPos, q_width, height/48+menu_gap*2, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*2, *sw_size):
                     font_antialias = SWfontAA.switch
-                if c_p_r(*MPos, q_width, height/48+menu_gap*3, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*3, *sw_size):
                     Sscale = transform.smoothscale if SWpicAA.switch else transform.scale
                     Stitle = Sscale(Srtitle, (int(width*0.96), int(width*0.13375)))
                     Sinfo = Sscale(Srinfo, (int(width*0.105), int(width*0.05625)))
@@ -715,20 +716,20 @@ while 1:
                     sw_off_disabled = Sscale(rsw_off_disabled, (int(width*0.03), int(width*0.03)))
                     sw_off_over = Sscale(rsw_off_over, (int(width*0.03), int(width*0.03)))
                     sw_off = Sscale(rsw_off, (int(width*0.03), int(width*0.03)))
-                if c_p_r(*MPos, q_width, height/48+menu_gap*4, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*4, *sw_size):
                     Gvsync = SWvsync.switch
-                if c_p_r(*MPos, q_width, height/48+menu_gap*5, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*5, *sw_size):
                     Gmobui = SWmobui.switch
-                if c_p_r(*MPos, q_width, height/48+menu_gap*6, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*6, *sw_size):
                     mous = SWmouse.switch
-                if c_p_r(*MPos, q_width, height/48+menu_gap*7, *sw_size):
+                if collision.point_rect(*MPos, q_width, height/48+menu_gap*7, *sw_size):
                     dev = SWdev.switch
         for i in event.get(MOUSEBUTTONUP):
             SLfont_size.on = SLmax_FPS.on = False
         for b, a in enumerate(event.get(MULTIGESTURE)):
             x = a.x*width
             y = a.y*height
-            win.blit(MAINFONT.render(f"{a.__dict__}", font_antialias, Ctext), (8, 8+30*b))
+            win.blit(MAINFONT.render(f"{a.dict}", font_antialias, Ctext), (8, 8+30*b))
             draw.circle(win, (255, 191, 255), (x, y), 20)
 
         win.blits(((Sexit,              (width/64, height/48)),

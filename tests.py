@@ -1,10 +1,10 @@
-from pygame import (QUIT, MOUSEMOTION, KMOD_LSHIFT, KMOD_LCTRL,
-                    KEYDOWN, FINGERDOWN, FINGERMOTION, MULTIGESTURE,
+from pygame import (KEYDOWN, FINGERDOWN, FINGERMOTION, MULTIGESTURE,
                     display, draw, event, mouse, font, time,
-                    Vector2,
-                    init, quit)
+                    QUIT, MOUSEMOTION,
+                    init, quit,
+                    Vector2)
 from sys import exit as sys_exit
-print(KMOD_LSHIFT, KMOD_LCTRL)
+
 init()
 win = display.set_mode()
 width, height = win.get_size()
@@ -39,10 +39,10 @@ while 1:
         dpos /= 2
         pos += dpos
 
-    win.blits([(MFont.render(f"{a.__dict__}", 1, (128, 128, 128)), (0, 15*b))for b, a in enumerate(event.get(KEYDOWN))])
+    win.blits([(MFont.render(f"{a.dict}", 1, (128, 128, 128)), (0, 15*b))for b, a in enumerate(event.get(KEYDOWN))])
 
     for a in event.get(MULTIGESTURE):
-        tpinched += a.dict["pinched"]*2
+        tpinched += a.pinched*2
 
     draw.circle(win, (255, 191, 255), pos, abs(width*tpinched), 2)
     display.flip()
